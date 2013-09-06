@@ -30,9 +30,9 @@
 		<slf4j.version>1.7.5</slf4j.version>
 	</properties>
 	<scm>
-		<connection>scm:git:git@github.com:ldjson/ldjson-cxf.git</connection>
-		<developerConnection>scm:git:git@github.com:ldjson/ldjson-cxf.git</developerConnection>
-		<url>scm:git:git@github.com:ldjson/ldjson-cxf.git</url>
+		<connection>scm:git:git@github.com:taimos/route53-updater.git</connection>
+		<developerConnection>scm:git:git@github.com:taimos/route53-updater.git</developerConnection>
+		<url>scm:git:git@github.com:taimos/route53-updater.git</url>
 		<tag>HEAD</tag>
 	</scm>
 	<prerequisites>
