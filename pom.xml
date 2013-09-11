@@ -138,10 +138,11 @@
 							</sources>
 						</mapping>
 						<mapping>
-							<directory>/opt/route53-updater</directory>
+							<directory>/usr/bin</directory>
 							<filemode>770</filemode>
 							<username>root</username>
 							<groupname>root</groupname>
+							<directoryIncluded>false</directoryIncluded>
 							<sources>
 								<source>
 									<location>package/route53-updater</location>
