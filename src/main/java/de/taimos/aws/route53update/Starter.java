@@ -49,9 +49,13 @@ public class Starter {
 		System.out.println("Creating new set: " + rrs);
 		changes.add(new Change("CREATE", rrs));
 		
-		AmazonRoute53Client cl = Starter.createClient();
-		ChangeResourceRecordSetsRequest req = new ChangeResourceRecordSetsRequest(zoneId, new ChangeBatch(changes));
-		cl.changeResourceRecordSets(req);
+		try {
+			AmazonRoute53Client cl = Starter.createClient();
+			ChangeResourceRecordSetsRequest req = new ChangeResourceRecordSetsRequest(zoneId, new ChangeBatch(changes));
+			cl.changeResourceRecordSets(req);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private static ResourceRecordSet findCurrentSet(String zoneId, String host) {
