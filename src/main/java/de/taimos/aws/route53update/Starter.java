@@ -28,7 +28,7 @@ public class Starter {
 	 */
 	public static void main(String[] args) {
 		if (args.length != 2) {
-			System.out.println("usage: java -jar route53-updater.jar <domain> <host>");
+			System.out.println("usage: route53-updater <domain> <host>");
 			System.exit(1);
 		}
 		String domain = args[0] + ".";
