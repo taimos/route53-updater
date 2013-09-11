@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.taimos.aws</groupId>
 	<artifactId>route53-updater</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<organization>
 		<name>Taimos GmbH</name>
 		<url>http://www.taimos.de</url>
@@ -55,8 +55,11 @@
 				<artifactId>maven-release-plugin</artifactId>
 				<version>2.4.1</version>
 				<configuration>
+					<goals>deploy rpm:rpm</goals>
+					<preparationGoals>clean verify rpm:rpm</preparationGoals>
 					<scmCommentPrefix>[maven-release-plugin]</scmCommentPrefix>
 					<tagNameFormat>v@{project.version}</tagNameFormat>
+					<useReleaseProfile>false</useReleaseProfile>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -93,6 +96,59 @@
 							<mainClass>de.taimos.aws.route53update.Starter</mainClass>
 						</manifest>
 					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>rpm-maven-plugin</artifactId>
+				<version>2.1-alpha-2</version>
+				<configuration>
+					<name>route53-updater</name>
+					<description>Update agent for AWS Route53</description>
+					<requires>
+						<require>jdk &gt;= 1.7</require>
+					</requires>
+					<packager>Taimos GmbH</packager>
+					<copyright>2013, Taimos GmbH</copyright>
+					<group>Applications/System</group>
+					<prefix>/</prefix>
+					<changelogFile>package/changelog</changelogFile>
+					<packager>Thorsten Hoeger</packager>
+					<mappings>
+						<mapping>
+							<directory>/opt/route53-updater</directory>
+							<filemode>440</filemode>
+							<username>root</username>
+							<groupname>root</groupname>
+							<sources>
+								<source>
+									<location>${project.build.directory}/route53-updater.jar</location>
+								</source>
+							</sources>
+						</mapping>
+						<mapping>
+							<directory>/opt/route53-updater/lib</directory>
+							<filemode>550</filemode>
+							<username>root</username>
+							<groupname>root</groupname>
+							<sources>
+								<source>
+									<location>${project.build.directory}/lib</location>
+								</source>
+							</sources>
+						</mapping>
+						<mapping>
+							<directory>/opt/route53-updater</directory>
+							<filemode>770</filemode>
+							<username>root</username>
+							<groupname>root</groupname>
+							<sources>
+								<source>
+									<location>package/route53-updater</location>
+								</source>
+							</sources>
+						</mapping>
+					</mappings>
 				</configuration>
 			</plugin>
 		</plugins>
