@@ -27,13 +27,19 @@ public class Starter {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		if (args.length != 2) {
-			System.out.println("usage: route53-updater <domain> <host>");
+		if ((args.length == 0) || (args.length > 2)) {
+			System.out.println("usage: route53-updater <domain> [<host>]");
 			System.exit(1);
 		}
 		String domain = args[0] + ".";
 		System.out.println("Domain: " + domain);
-		String host = args[1] + "." + domain;
+		String hostpart;
+		if (args.length == 2) {
+			hostpart = args[1];
+		} else {
+			hostpart = Starter.getInstanceId();
+		}
+		String host = hostpart + "." + domain;
 		System.out.println("Host: " + host);
 		String zoneId = Starter.findZoneId(domain);
 		
@@ -56,6 +62,11 @@ public class Starter {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private static String getInstanceId() {
+		HttpResponse res = WS.url("http://169.254.169.254/latest/meta-data/instance-id").get();
+		return WS.getResponseAsString(res);
 	}
 	
 	private static ResourceRecordSet findCurrentSet(String zoneId, String host) {
