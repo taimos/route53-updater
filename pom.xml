@@ -105,9 +105,6 @@
 				<configuration>
 					<name>route53-updater</name>
 					<description>Update agent for AWS Route53</description>
-					<requires>
-						<require>jdk &gt;= 1.7</require>
-					</requires>
 					<packager>Taimos GmbH</packager>
 					<copyright>2013, Taimos GmbH</copyright>
 					<group>Applications/System</group>
