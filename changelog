@@ -1,0 +1,8 @@
+* 1.1.0
+- use instance id as default hostname
+- fix rpm infos
+- add private ip mode
+- use maven assembly instead of RPM
+
+* 1.0.0
+- first version of AWS Route 53 updater

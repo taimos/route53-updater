@@ -56,98 +56,33 @@
 				<artifactId>maven-release-plugin</artifactId>
 				<version>2.4.1</version>
 				<configuration>
-					<goals>deploy rpm:rpm</goals>
-					<preparationGoals>clean verify rpm:rpm</preparationGoals>
 					<scmCommentPrefix>[maven-release-plugin]</scmCommentPrefix>
 					<tagNameFormat>v@{project.version}</tagNameFormat>
 					<useReleaseProfile>false</useReleaseProfile>
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<version>2.5.1</version>
+				<artifactId>maven-assembly-plugin</artifactId>
 				<executions>
 					<execution>
-						<phase>package</phase>
+						<id>make-assembly</id> <!-- this is used for inheritance merges -->
+						<phase>package</phase> <!-- bind to the packaging phase -->
 						<goals>
-							<goal>copy-dependencies</goal>
+							<goal>single</goal>
 						</goals>
-						<configuration>
-							<outputDirectory>${project.build.directory}/lib</outputDirectory>
-							<overWriteReleases>false</overWriteReleases>
-							<overWriteSnapshots>false</overWriteSnapshots>
-							<overWriteIfNewer>true</overWriteIfNewer>
-							<prependGroupId>true</prependGroupId>
-						</configuration>
 					</execution>
 				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.4</version>
 				<configuration>
+					<finalName>route53-updater</finalName>
+					<appendAssemblyId>false</appendAssemblyId>
 					<archive>
 						<manifest>
-							<addClasspath>true</addClasspath>
-							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-							<classpathLayoutType>custom</classpathLayoutType>
-							<customClasspathLayout>lib/$${artifact.groupId}.$${artifact.artifactId}-$${artifact.version}$${dashClassifier?}.$${artifact.extension}</customClasspathLayout>
 							<mainClass>de.taimos.aws.route53update.Starter</mainClass>
 						</manifest>
 					</archive>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>rpm-maven-plugin</artifactId>
-				<version>2.1-alpha-2</version>
-				<configuration>
-					<name>route53-updater</name>
-					<description>Update agent for AWS Route53</description>
-					<packager>Taimos GmbH</packager>
-					<copyright>2013, Taimos GmbH</copyright>
-					<group>Applications/System</group>
-					<prefix>/</prefix>
-					<changelogFile>package/changelog</changelogFile>
-					<packager>Thorsten Hoeger</packager>
-					<mappings>
-						<mapping>
-							<directory>/opt/route53-updater</directory>
-							<filemode>440</filemode>
-							<username>root</username>
-							<groupname>root</groupname>
-							<sources>
-								<source>
-									<location>${project.build.directory}/route53-updater.jar</location>
-								</source>
-							</sources>
-						</mapping>
-						<mapping>
-							<directory>/opt/route53-updater/lib</directory>
-							<filemode>550</filemode>
-							<username>root</username>
-							<groupname>root</groupname>
-							<sources>
-								<source>
-									<location>${project.build.directory}/lib</location>
-								</source>
-							</sources>
-						</mapping>
-						<mapping>
-							<directory>/usr/bin</directory>
-							<filemode>770</filemode>
-							<username>root</username>
-							<groupname>root</groupname>
-							<directoryIncluded>false</directoryIncluded>
-							<sources>
-								<source>
-									<location>package/route53-updater</location>
-								</source>
-							</sources>
-						</mapping>
-					</mappings>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
 				</configuration>
 			</plugin>
 		</plugins>

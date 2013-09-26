@@ -1,7 +1,0 @@
-* Day Mon xx 2013 Thorsten Hoeger <thorsten.hoeger@taimos.de> 1.1.0-1
-- use instance id as default hostname
-- fix rpm infos
-- add private ip mode
-
-* Wed Sep 11 2013 Thorsten Hoeger <thorsten.hoeger@taimos.de> 1.0.0-1
-- first version of AWS Route 53 updater
