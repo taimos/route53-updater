@@ -3,7 +3,7 @@
 This tool updates Route53 RecordSets based on local information.
 
 ## Usage
-Just issue ``route53-updater --domain <val> --host <val>`` on the console and it will create or update a CNAME for ``host.domain.`` which aliases to the public DNS name of the current instance. This is retrieved via instance metadata. Credentials to update Route53 are obtained using IAM profiles.
+Just issue ``java -jar route53-updater --domain <val> --host <val>`` on the console and it will create or update a CNAME for ``host.domain.`` which aliases to the public DNS name of the current instance. This is retrieved via instance metadata. Credentials to update Route53 are obtained using IAM profiles.
 
 For further options run ``route53-updater`` without arguments. 
 
@@ -11,5 +11,5 @@ For further options run ``route53-updater`` without arguments.
 
 On systems using yum you can call
 
-``rpm -Uvh https://github.com/taimos/route53-updater/releases/download/v1.0.0/route53-updater-1.0.0-1.noarch.rpm``
+``wget https://github.com/taimos/route53-updater/releases/download/v1.1.0/route53-updater.jar``
 
