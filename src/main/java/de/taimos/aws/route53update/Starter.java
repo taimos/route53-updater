@@ -1,7 +1,13 @@
 package de.taimos.aws.route53update;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import joptsimple.OptionException;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 
 import org.apache.http.HttpResponse;
 
@@ -23,37 +29,68 @@ import de.taimos.httputils.WS;
 
 public class Starter {
 	
+	private static String region;
+	
+	
 	/**
-	 * @param args
+	 * @param args - the args
 	 */
 	public static void main(String[] args) {
-		if ((args.length == 0) || (args.length > 2)) {
-			System.out.println("usage: route53-updater <domain> [<host>]");
+		OptionParser p = new OptionParser();
+		OptionSpec<String> domainOpt = p.accepts("domain", "the hosted zone name").withRequiredArg().ofType(String.class).required();
+		OptionSpec<String> hostOpt = p.accepts("host", "the host name (default instanceID)").withRequiredArg().ofType(String.class);
+		OptionSpec<String> regionOpt = p.accepts("region", "the AWS region (default eu-west-1)").withRequiredArg().ofType(String.class);
+		p.accepts("private", "use private IP");
+		
+		final OptionSet options;
+		try {
+			options = p.parse(args);
+		} catch (OptionException e1) {
+			try {
+				p.printHelpOn(System.out);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			System.exit(1);
+			// compiler doesn't understand exit(1)
+			throw new RuntimeException();
 		}
-		String domain = args[0] + ".";
+		
+		if (options.has(regionOpt)) {
+			Starter.region = options.valueOf(regionOpt);
+		} else {
+			Starter.region = "eu-west-1";
+		}
+		
+		String domain = options.valueOf(domainOpt);
 		System.out.println("Domain: " + domain);
 		String hostpart;
-		if (args.length == 2) {
-			hostpart = args[1];
+		if (options.has(hostOpt)) {
+			hostpart = options.valueOf(hostOpt);
 		} else {
-			hostpart = Starter.getInstanceId();
+			hostpart = Starter.getMetadata("instance-id");
 		}
 		String host = hostpart + "." + domain;
 		System.out.println("Host: " + host);
 		String zoneId = Starter.findZoneId(domain);
 		
-		String publicHostname = Starter.getPublicHostname();
 		ResourceRecordSet set = Starter.findCurrentSet(zoneId, host);
-		
 		List<Change> changes = new ArrayList<>();
 		if (set != null) {
 			System.out.println("Deleting current set: " + set);
 			changes.add(new Change("DELETE", set));
 		}
-		ResourceRecordSet rrs = new ResourceRecordSet(host, RRType.CNAME).withTTL(60L).withResourceRecords(new ResourceRecord(publicHostname));
-		System.out.println("Creating new set: " + rrs);
-		changes.add(new Change("CREATE", rrs));
+		if (options.has("private")) {
+			String ipAddress = Starter.getMetadata("local-ipv4");
+			ResourceRecordSet rrs = new ResourceRecordSet(host, RRType.A).withTTL(60L).withResourceRecords(new ResourceRecord(ipAddress));
+			System.out.println("Creating new set: " + rrs);
+			changes.add(new Change("CREATE", rrs));
+		} else {
+			String publicHostname = Starter.getMetadata("public-hostname");
+			ResourceRecordSet rrs = new ResourceRecordSet(host, RRType.CNAME).withTTL(60L).withResourceRecords(new ResourceRecord(publicHostname));
+			System.out.println("Creating new set: " + rrs);
+			changes.add(new Change("CREATE", rrs));
+		}
 		
 		try {
 			AmazonRoute53Client cl = Starter.createClient();
@@ -64,8 +101,8 @@ public class Starter {
 		}
 	}
 	
-	private static String getInstanceId() {
-		HttpResponse res = WS.url("http://169.254.169.254/latest/meta-data/instance-id").get();
+	private static String getMetadata(String value) {
+		HttpResponse res = WS.url("http://169.254.169.254/latest/meta-data/{type}").pathParam("type", value).get();
 		return WS.getResponseAsString(res);
 	}
 	
@@ -94,14 +131,9 @@ public class Starter {
 		throw new RuntimeException("Cannot find zone: " + domain);
 	}
 	
-	private static String getPublicHostname() {
-		HttpResponse res = WS.url("http://169.254.169.254/latest/meta-data/public-hostname").get();
-		return WS.getResponseAsString(res);
-	}
-	
 	private static AmazonRoute53Client createClient() {
 		AmazonRoute53Client cl = new AmazonRoute53Client();
-		cl.setRegion(Region.getRegion(Regions.EU_WEST_1));
+		cl.setRegion(Region.getRegion(Regions.fromName(Starter.region)));
 		return cl;
 	}
 }
