@@ -63,6 +63,10 @@ public class Starter {
 		}
 		
 		String domain = options.valueOf(domainOpt);
+		// Add dot for DNS
+		if (!domain.endsWith(".")) {
+			domain = domain + ".";
+		}
 		System.out.println("Domain: " + domain);
 		String hostpart;
 		if (options.has(hostOpt)) {
