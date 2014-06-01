@@ -28,7 +28,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<slf4j.version>1.7.7</slf4j.version>
-		<aws.version>1.7.7</aws.version>
+		<aws.version>1.7.12</aws.version>
 	</properties>
 	<scm>
 		<connection>scm:git:git@github.com:taimos/route53-updater.git</connection>
