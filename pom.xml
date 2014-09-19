@@ -12,7 +12,7 @@
 	<properties>
 		<mainClass>de.taimos.aws.route53update.Starter</mainClass>
 		<slf4j.version>1.7.7</slf4j.version>
-		<aws.version>1.7.12</aws.version>
+		<aws.version>1.8.10.2</aws.version>
 	</properties>
 	<scm>
 		<connection>scm:git:git@github.com:taimos/route53-updater.git</connection>
@@ -34,12 +34,12 @@
 		<dependency>
 			<groupId>net.sf.jopt-simple</groupId>
 			<artifactId>jopt-simple</artifactId>
-			<version>4.6</version>
+			<version>4.7</version>
 		</dependency>
 		<dependency>
 			<groupId>de.taimos</groupId>
 			<artifactId>httputils</artifactId>
-			<version>1.5</version>
+			<version>1.6</version>
 		</dependency>
 		<dependency>
 			<groupId>com.amazonaws</groupId>
