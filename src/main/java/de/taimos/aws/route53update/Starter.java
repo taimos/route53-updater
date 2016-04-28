@@ -4,11 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import joptsimple.OptionException;
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
-import joptsimple.OptionSpec;
-
 import org.apache.http.HttpResponse;
 
 import com.amazonaws.regions.Region;
@@ -26,6 +21,10 @@ import com.amazonaws.services.route53.model.ResourceRecord;
 import com.amazonaws.services.route53.model.ResourceRecordSet;
 
 import de.taimos.httputils.WS;
+import joptsimple.OptionException;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 
 public class Starter {
 	
@@ -40,7 +39,8 @@ public class Starter {
 		OptionSpec<String> domainOpt = p.accepts("domain", "the hosted zone name").withRequiredArg().ofType(String.class).required();
 		OptionSpec<String> hostOpt = p.accepts("host", "the host name (default instanceID)").withRequiredArg().ofType(String.class);
 		OptionSpec<String> regionOpt = p.accepts("region", "the AWS region (default eu-west-1)").withRequiredArg().ofType(String.class);
-		p.accepts("private", "use private IP");
+		OptionSpec<String> modeOpt = p.accepts("mode", "the IP resolve mode (private|public|external)").withRequiredArg().ofType(String.class);
+		p.accepts("private", "use private IP (deprecated; use '--mode private')");
 		
 		final OptionSet options;
 		try {
@@ -84,17 +84,32 @@ public class Starter {
 			System.out.println("Deleting current set: " + set);
 			changes.add(new Change("DELETE", set));
 		}
-		if (options.has("private")) {
-			String ipAddress = Starter.getMetadata("local-ipv4");
-			ResourceRecordSet rrs = new ResourceRecordSet(host, RRType.A).withTTL(60L).withResourceRecords(new ResourceRecord(ipAddress));
-			System.out.println("Creating new set: " + rrs);
-			changes.add(new Change("CREATE", rrs));
+		
+		final String mode;
+		if (!options.has(modeOpt)) {
+			mode = options.has("private") ? "private" : "public";
 		} else {
-			String publicHostname = Starter.getMetadata("public-hostname");
-			ResourceRecordSet rrs = new ResourceRecordSet(host, RRType.CNAME).withTTL(60L).withResourceRecords(new ResourceRecord(publicHostname));
-			System.out.println("Creating new set: " + rrs);
-			changes.add(new Change("CREATE", rrs));
+			mode = options.valueOf(modeOpt);
 		}
+		final ResourceRecordSet rrs;
+		switch (mode) {
+		case "private":
+			String ipAddress = Starter.getMetadata("local-ipv4");
+			rrs = new ResourceRecordSet(host, RRType.A).withTTL(60L).withResourceRecords(new ResourceRecord(ipAddress));
+			break;
+		case "public":
+			String publicHostname = Starter.getMetadata("public-hostname");
+			rrs = new ResourceRecordSet(host, RRType.CNAME).withTTL(60L).withResourceRecords(new ResourceRecord(publicHostname));
+			break;
+		case "external":
+			String externalIP = Starter.getExternalIP();
+			rrs = new ResourceRecordSet(host, RRType.A).withTTL(60L).withResourceRecords(new ResourceRecord(externalIP));
+			break;
+		default:
+			throw new RuntimeException("Invalid IP resolve mode " + mode);
+		}
+		System.out.println("Creating new set: " + rrs);
+		changes.add(new Change("CREATE", rrs));
 		
 		try {
 			AmazonRoute53Client cl = Starter.createClient();
@@ -107,6 +122,11 @@ public class Starter {
 	
 	private static String getMetadata(String value) {
 		HttpResponse res = WS.url("http://169.254.169.254/latest/meta-data/{type}").pathParam("type", value).get();
+		return WS.getResponseAsString(res);
+	}
+	
+	private static String getExternalIP() {
+		HttpResponse res = WS.url("http://icanhazip.com").get();
 		return WS.getResponseAsString(res);
 	}
 	

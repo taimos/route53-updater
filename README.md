@@ -11,5 +11,5 @@ For further options run ``java -jar route53-updater`` without arguments.
 
 On Linux bases systems you can call
 
-``wget https://github.com/taimos/route53-updater/releases/download/v1.3/route53-updater.jar``
+``wget https://github.com/taimos/route53-updater/releases/download/v1.6/route53-updater.jar``
 
