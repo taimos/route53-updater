@@ -1,5 +1,0 @@
-#!/bin/bash
-
-cd /opt/route53-updater
-
-java -jar route53-updater.jar $1 $2
