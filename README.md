@@ -13,3 +13,8 @@ On Linux bases systems you can call
 
 ``wget https://github.com/taimos/route53-updater/releases/download/v1.6/route53-updater.jar``
 
+## Docker
+
+You can also run the update using Docker. Just run the `taimos/route53-updater` image with the desired arguments:
+
+e.g. `docker run --rm -ti taimos/route53-updater:latest --domain <val> --host <val>`
