@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/taimos/route53-updater.svg?branch=master)](https://travis-ci.org/taimos/route53-updater)
+
 # Route53 updater
 
 This tool updates Route53 RecordSets based on local information.
