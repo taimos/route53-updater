@@ -158,8 +158,8 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <releaseName>@{project.version}</releaseName>
-                            <tag>v@{project.version}</tag>
+                            <releaseName>${project.version}</releaseName>
+                            <tag>v${project.version}</tag>
                             <fileSets>
                                 <fileSet>
                                     <directory>${project.build.directory}</directory>
