@@ -1,3 +1,7 @@
+# Version 1.8
+* Build Docker image using maven plugin
+* update AWS SDK
+
 # Version 1.7
 * add script to build Docker images
 

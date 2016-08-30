@@ -28,7 +28,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mainClass>de.taimos.aws.route53update.Starter</mainClass>
         <slf4j.version>1.7.21</slf4j.version>
-        <aws.version>1.10.73</aws.version>
+        <aws.version>1.11.29</aws.version>
     </properties>
     <scm>
         <connection>scm:git:git@github.com:taimos/route53-updater.git</connection>
@@ -50,7 +50,7 @@
         <dependency>
             <groupId>net.sf.jopt-simple</groupId>
             <artifactId>jopt-simple</artifactId>
-            <version>4.9</version>
+            <version>5.0.2</version>
         </dependency>
         <dependency>
             <groupId>de.taimos</groupId>
@@ -169,6 +169,74 @@
                                 </fileSet>
                             </fileSets>
                         </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <version>0.15.1</version>
+                        <configuration>
+                            <images>
+                                <image>
+                                    <name>
+                                        taimos/route53-updater:${project.version}
+                                    </name>
+                                    <build>
+                                        <from>java:8-alpine</from>
+                                        <maintainer>${project.organization.name}</maintainer>
+                                        <tags>
+                                            <tag>latest</tag>
+                                            <tag>${project.version}</tag>
+                                        </tags>
+                                        <workdir>/opt</workdir>
+                                        <runCmds>
+                                            <run>chmod +x /opt/entrypoint.sh</run>
+                                        </runCmds>
+                                        <entryPoint>
+                                            <arg>/opt/entrypoint.sh</arg>
+                                        </entryPoint>
+                                        <assembly>
+                                            <basedir>/opt</basedir>
+                                            <inline xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+                                                    xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+                                                <id>docker-assembly</id>
+                                                <fileSets>
+                                                    <fileSet>
+                                                        <directory>docker</directory>
+                                                        <outputDirectory>/</outputDirectory>
+                                                        <includes>
+                                                            <include>entrypoint.sh</include>
+                                                        </includes>
+                                                    </fileSet>
+                                                    <fileSet>
+                                                        <directory>${project.build.directory}</directory>
+                                                        <outputDirectory>/</outputDirectory>
+                                                        <includes>
+                                                            <include>${project.artifactId}.jar</include>
+                                                        </includes>
+                                                    </fileSet>
+                                                </fileSets>
+                                            </inline>
+                                        </assembly>
+                                    </build>
+                                </image>
+                            </images>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>build</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>build</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>push</id>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>push</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
